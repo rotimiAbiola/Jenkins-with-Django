@@ -13,7 +13,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  pythonVersion: '3.11'
+  pythonVersion: '3.7'
 
 stages:
 - stage: Build
@@ -22,9 +22,8 @@ stages:
   - job: InstallDependencies
     pool:
       vmImage: 'ubuntu-latest'
+      
     steps:
-    - script: echo Hello, world!
-      displayName: 'Run a one-line script'
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '$(pythonVersion)'
@@ -40,7 +39,7 @@ stages:
           source venv/bin/activate
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      displayName: 'Install dependencies and migrate'
+      displayName: 'Install dependencies'
 
     - task: ArchiveFiles@2
       inputs:
@@ -49,6 +48,10 @@ stages:
         archiveType: 'zip'
         archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
         replaceExistingArchive: true
+
+    - upload: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+      displayName: 'Upload Package'
+      artifact: drop
       
 
 
