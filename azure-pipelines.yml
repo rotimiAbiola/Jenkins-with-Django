@@ -37,35 +37,10 @@ stages:
         scriptSource: 'inline'
         script: |
           python -m venv venv
-          source env/bin/activate
+          source venv/bin/activate
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      displayName: 'Install dependecies and migrate'
-      
-- stage: Deploy
-  dependsOn: Build
-  displayName: 'Deploy'
-  jobs:
-  - job: 'DeployToAppService'
-    steps:
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '$(pythonVersion)'
-        addToPath: true
-        architecture: 'x64'
-      displayName: 'Use Python $(pythonVersion)'
-    
-    - task: PythonScript@0
-      inputs:
-        scriptSource: 'inline'
-        script: |
-          python -m venv venv
-          source env/bin/activate
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          python manage.py collectstatic --noinput
-          python manage.py migrate
-      displayName: 'Install dependecies, migrate and collect static files'
+      displayName: 'Install dependencies and migrate'
 
     - task: ArchiveFiles@2
       inputs:
@@ -74,17 +49,7 @@ stages:
         archiveType: 'zip'
         archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
         replaceExistingArchive: true
-    
-    - task: AzureRmWebAppDeployment@4
-      inputs:
-        ConnectionType: 'AzureRM'
-        azureSubscription: 'azure-connection'
-        appType: 'webAppLinux'
-        WebAppName: 'django-app-sample'
-        packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
-        RuntimeStack: 'PYTHON|3.11'
-        StartupCommand: 'sudo systemctl restart nginx'
-    
+      
 
 
     
