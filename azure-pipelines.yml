@@ -31,10 +31,9 @@ stages:
         architecture: 'x64'
       displayName: 'Use Python $(pythonVersion)'
 
-    - task: PythonScript@0
-      inputs:
-        scriptSource: 'inline'
-        script: |
+     - script: |
+          python -m venv env
+          source env/bin/activate
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       displayName: 'Install dependencies'
